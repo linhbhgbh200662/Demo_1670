@@ -1,0 +1,91 @@
+﻿@using Microsoft.AspNetCore.Razor.Language;
+@model Web_1670.Models.Cart
+@{
+    ViewData["Title"] = "ListCart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts{
+    <script src="/Scripts/jquery-1.4.4.min.js"
+        type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".updateCart").click(function (event) {
+                event.preventDefault();
+                var quantity = $(".quantity_" + $(this).attr("data-id")).val();
+                console.log(quantity);
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("updateCart", "Home")",
+                    data: {
+                        id: $(this).attr("data-id"),
+                        quantity: quantity
+                    },
+                    success: function (result) {
+                        window.location.href = '@Url.Action("ListCart", "Home")';
+                    }
+                });
+            });
+        });
+    </script>
+}
+<div>
+    <table class="table" border="1">
+        <tr>
+            <th>STT</th>
+            <th>Title</th>
+            <th>Image</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total Price</th>
+            <th>Update</th>
+            <th>Delete</th>
+        </tr>
+        @{
+             int STT = 0;
+        double sum = 0;
+        int count = 0;
+
+            foreach (var item in ViewBag.carts)
+            {
+                string txt_class = "quantity_" + item.Book.Id;
+                double total = item.Book.Price * item.Quantity;
+                sum += total;
+                count += 1;
+                STT++;
+                //caloriesBurned = Convert.ToInt32(Decimal.Multiply(maleusage, textBoxInt));
+                <tr>
+                    <td>@STT</td>
+                    <td>@item.Book.NameBook</td>
+                    <td><img src="@item.Book.ImageUrl" width="100" height="100" /></td>
+                    <td><input type="number" class="@txt_class" value="@item.Quantity" /></td>
+                    <td>@item.Book.Price</td>
+                    <td>@total</td>
+                    <td><a href="" data-id="@item.Book.Id" class="updateCart btn">Update</a></td>
+                    <td><a asp-controller="Home" asp-action="deleteCart" asp-route-id="@item.Book.Id" class="btn">Delete</a></td>
+                </tr>
+            }
+        }
+
+    </table>
+    <div class="col-lg-4 bg-grey">
+        <div class="p-5">
+            <h3 class="fw-bold mb-5 mt-2 pt-1">Summary</h3>
+            <hr class="my-4">
+            <div class="d-flex justify-content-between mb-4">
+                <h5 class="text-uppercase">items</h5>
+                <h5>@count</h5>
+            </div>
+            <div class="d-flex justify-content-between mb-5">
+                <h5 class="text-uppercase">Total price</h5>
+                <h5>$ @sum</h5>
+            </div>
+            @using (Html.BeginForm("CheckOut", "Home", FormMethod.Post))
+            {
+                <div class="col-md-3 col-lg-3 col-xl-2">
+                    <button type="submit" class="btn btn-primary"><h6 class="mb-0">Checkout</h6></button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
